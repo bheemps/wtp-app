@@ -16,7 +16,7 @@ init("step", 1)
 init("category_name","")
 init("category_desc","")
 init("category_type","Product")
-init("category_level","L1")
+init("category_level","")
 init("market","")
 init("countries","")
 
@@ -29,10 +29,19 @@ init("targets",{})
 init("levers","")
 
 if "risks" not in st.session_state:
-    st.session_state.risks = [{"name":"", "impact":3, "prob":3}]
+    st.session_state.risks = [{
+        "name":"",
+        "impact":3,
+        "prob":3
+    }]
 
 if "stakeholders" not in st.session_state:
-    st.session_state.stakeholders = [{"group":"", "role":"", "power":3, "impact":3}]
+    st.session_state.stakeholders = [{
+        "group":"",
+        "role":"",
+        "power":3,
+        "impact":3
+    }]
 
 # ---------------- SIDEBAR ----------------
 steps = [
@@ -50,10 +59,13 @@ steps = [
 st.sidebar.title("Progress")
 
 for i, s in enumerate(steps, start=1):
+
     if i == st.session_state.step:
         st.sidebar.markdown(f"➡️ **{s}**")
+
     elif i < st.session_state.step:
         st.sidebar.markdown(f"✅ {s}")
+
     else:
         st.sidebar.markdown(f"⬜ {s}")
 
@@ -75,14 +87,19 @@ def nav(next_step):
 
 # ---------------- HEADER ----------------
 st.title("🧠 Category Strategy Builder")
-st.subheader(f"Step {st.session_state.step}: {steps[st.session_state.step-1]}")
+st.subheader(
+    f"Step {st.session_state.step}: "
+    f"{steps[st.session_state.step-1]}"
+)
 
 # =========================================================
 # STEP 1 — CATEGORY
 # =========================================================
 if st.session_state.step == 1:
 
-    st.session_state.category_name = st.text_input("Category Name")
+    st.session_state.category_name = st.text_input(
+        "Category Name"
+    )
 
     st.session_state.category_desc = st.text_area(
         "Describe your category / industry"
@@ -121,24 +138,29 @@ Create a concise PESTLE analysis.
 Category:
 {st.session_state.category_name}
 
-Industry Description:
+Industry:
 {st.session_state.category_desc}
 
 Supplier Countries:
 {st.session_state.countries}
 
 Rules:
-- bullet points only
 - concise
+- bullet points only
 - business tone
 """
 
         res = client.chat.completions.create(
             model="gpt-4.1-mini",
-            messages=[{"role":"user","content":prompt}]
+            messages=[{
+                "role":"user",
+                "content":prompt
+            }]
         )
 
-        st.session_state.market = res.choices[0].message.content
+        st.session_state.market = (
+            res.choices[0].message.content
+        )
 
     st.session_state.market = st.text_area(
         "Market Analysis",
@@ -156,10 +178,14 @@ elif st.session_state.step == 3:
     col3, col4 = st.columns(2)
 
     with col1:
-        st.session_state.strength = st.text_area("Strengths")
+        st.session_state.strength = st.text_area(
+            "Strengths"
+        )
 
     with col2:
-        st.session_state.weakness = st.text_area("Weaknesses")
+        st.session_state.weakness = st.text_area(
+            "Weaknesses"
+        )
 
     with col3:
 
@@ -168,7 +194,7 @@ elif st.session_state.step == 3:
         if st.button("Generate Opportunities"):
 
             prompt = f"""
-Generate opportunities for the following.
+Generate opportunities.
 
 Category:
 {st.session_state.category_name}
@@ -181,17 +207,22 @@ Supplier Countries:
 
 Rules:
 - do not separate by country
-- make one consolidated opportunity list
-- bullet points only
+- one consolidated list
 - concise
+- bullet points only
 """
 
             res = client.chat.completions.create(
                 model="gpt-4.1-mini",
-                messages=[{"role":"user","content":prompt}]
+                messages=[{
+                    "role":"user",
+                    "content":prompt
+                }]
             )
 
-            st.session_state.opportunities_box = res.choices[0].message.content
+            st.session_state.opportunities_box = (
+                res.choices[0].message.content
+            )
 
         st.text_area(
             "Opportunities",
@@ -205,7 +236,7 @@ Rules:
         if st.button("Generate Threats"):
 
             prompt = f"""
-Generate threats for the following.
+Generate threats.
 
 Category:
 {st.session_state.category_name}
@@ -218,17 +249,22 @@ Supplier Countries:
 
 Rules:
 - do not separate by country
-- make one consolidated threat list
-- bullet points only
+- one consolidated list
 - concise
+- bullet points only
 """
 
             res = client.chat.completions.create(
                 model="gpt-4.1-mini",
-                messages=[{"role":"user","content":prompt}]
+                messages=[{
+                    "role":"user",
+                    "content":prompt
+                }]
             )
 
-            st.session_state.threats_box = res.choices[0].message.content
+            st.session_state.threats_box = (
+                res.choices[0].message.content
+            )
 
         st.text_area(
             "Threats",
@@ -245,11 +281,13 @@ elif st.session_state.step == 4:
     st.header("Risk Assessment")
 
     if st.button("Add Risk"):
+
         st.session_state.risks.append({
             "name":"",
             "impact":3,
             "prob":3
         })
+
         st.rerun()
 
     for i, r in enumerate(st.session_state.risks):
@@ -278,8 +316,10 @@ elif st.session_state.step == 4:
             )
 
         if i > 0:
+
             with col4:
                 if st.button("❌", key=f"del_r{i}"):
+
                     st.session_state.risks.pop(i)
                     st.rerun()
 
@@ -293,17 +333,21 @@ elif st.session_state.step == 5:
     st.header("Stakeholder Management")
 
     if st.button("Add Stakeholder"):
+
         st.session_state.stakeholders.append({
             "group":"",
             "role":"",
             "power":3,
             "impact":3
         })
+
         st.rerun()
 
     for i, s in enumerate(st.session_state.stakeholders):
 
-        col1, col2, col3, col4, col5 = st.columns([2,2,1,1,1])
+        col1, col2, col3, col4, col5 = st.columns(
+            [2,2,1,1,1]
+        )
 
         with col1:
             s["group"] = st.text_input(
@@ -334,8 +378,10 @@ elif st.session_state.step == 5:
             )
 
         if i > 0:
+
             with col5:
                 if st.button("❌", key=f"del_s{i}"):
+
                     st.session_state.stakeholders.pop(i)
                     st.rerun()
 
@@ -356,7 +402,13 @@ elif st.session_state.step == 6:
         "Risk",
         "Sustainability"
     ]:
-        targets[t] = st.slider(t,1,5,3)
+
+        targets[t] = st.slider(
+            t,
+            1,
+            5,
+            3
+        )
 
     st.session_state.targets = targets
 
@@ -377,28 +429,31 @@ elif st.session_state.step == 7:
 
     st.write(st.session_state.category_desc)
 
+    # -------- MARKET --------
     st.subheader("Market")
+
     st.write(st.session_state.market)
 
+    # -------- SWOT --------
     st.subheader("SWOT")
 
     col1, col2 = st.columns(2)
     col3, col4 = st.columns(2)
 
     with col1:
-        st.markdown("**Strengths**")
+        st.markdown("### Strengths")
         st.write(st.session_state.strength)
 
     with col2:
-        st.markdown("**Weaknesses**")
+        st.markdown("### Weaknesses")
         st.write(st.session_state.weakness)
 
     with col3:
-        st.markdown("**Opportunities**")
+        st.markdown("### Opportunities")
         st.write(st.session_state.opportunities_box)
 
     with col4:
-        st.markdown("**Threats**")
+        st.markdown("### Threats")
         st.write(st.session_state.threats_box)
 
     # -------- RISK MAP --------
@@ -408,7 +463,9 @@ elif st.session_state.step == 7:
 
     if not df.empty:
 
-        chart = alt.Chart(df).mark_circle(size=120).encode(
+        chart = alt.Chart(df).mark_circle(
+            size=120
+        ).encode(
             x=alt.X(
                 "prob",
                 scale=alt.Scale(domain=[0,5]),
@@ -437,7 +494,10 @@ elif st.session_state.step == 7:
             text="name"
         )
 
-        st.altair_chart(chart + text, use_container_width=True)
+        st.altair_chart(
+            chart + text,
+            use_container_width=True
+        )
 
     # -------- STAKEHOLDER MAP --------
     st.subheader("Stakeholder Map")
@@ -446,7 +506,9 @@ elif st.session_state.step == 7:
 
     if not df2.empty:
 
-        chart2 = alt.Chart(df2).mark_circle(size=120).encode(
+        chart2 = alt.Chart(df2).mark_circle(
+            size=120
+        ).encode(
             x=alt.X(
                 "power",
                 scale=alt.Scale(domain=[0,5]),
@@ -475,10 +537,15 @@ elif st.session_state.step == 7:
             text="group"
         )
 
-        st.altair_chart(chart2 + text2, use_container_width=True)
+        st.altair_chart(
+            chart2 + text2,
+            use_container_width=True
+        )
 
     # -------- TARGETS --------
-    st.subheader("Value Contribution Priorities")
+    st.subheader(
+        "Value Contribution Priorities"
+    )
 
     targets = st.session_state.targets
 
@@ -490,7 +557,10 @@ elif st.session_state.step == 7:
             reverse=True
         )
 
-        top = [t[0] for t in sorted_targets[:3]]
+        top = [
+            t[0]
+            for t in sorted_targets[:3]
+        ]
 
         st.markdown(f"""
 **Primary focus areas:** {", ".join(top)}
@@ -499,6 +569,7 @@ These priorities indicate where the category strategy should concentrate its eff
 """)
 
         for k, v in sorted_targets:
+
             st.markdown(f"**{k}**")
             st.progress(v / 5)
 
@@ -509,16 +580,25 @@ These priorities indicate where the category strategy should concentrate its eff
 # =========================================================
 elif st.session_state.step == 8:
 
-    if st.button("Generate Strategic Levers"):
+    if st.button(
+        "Generate Strategic Levers"
+    ):
 
         risks_text = "\n".join([
-            f"- {r['name']} (Impact {r['impact']}, Probability {r['prob']})"
-            for r in st.session_state.risks if r["name"]
+            f"- {r['name']} "
+            f"(Impact {r['impact']}, "
+            f"Probability {r['prob']})"
+            for r in st.session_state.risks
+            if r["name"]
         ])
 
         stakeholders_text = "\n".join([
-            f"- {s['group']} ({s['role']}) - Power {s['power']}, Impact {s['impact']}"
-            for s in st.session_state.stakeholders if s["group"]
+            f"- {s['group']} "
+            f"({s['role']}) "
+            f"- Power {s['power']}, "
+            f"Impact {s['impact']}"
+            for s in st.session_state.stakeholders
+            if s["group"]
         ])
 
         targets_text = ", ".join([
@@ -527,7 +607,7 @@ elif st.session_state.step == 8:
         ])
 
         prompt = f"""
-Generate strategic levers using ALL inputs below.
+Generate strategic levers.
 
 Category:
 {st.session_state.category_name}
@@ -553,11 +633,11 @@ Stakeholders:
 Value Priorities:
 {targets_text}
 
-Output:
+Rules:
 - max 8 bullets
-- practical and actionable
+- actionable
 - business tone
-- use risks and stakeholder influence explicitly
+- explicitly consider risks, stakeholders, and priorities
 """
 
         res = client.chat.completions.create(
@@ -569,7 +649,9 @@ Output:
             temperature=0.6
         )
 
-        st.session_state.levers = res.choices[0].message.content
+        st.session_state.levers = (
+            res.choices[0].message.content
+        )
 
     st.write(st.session_state.levers)
 
@@ -580,16 +662,25 @@ Output:
 # =========================================================
 elif st.session_state.step == 9:
 
-    if st.button("Generate Executive Summary"):
+    if st.button(
+        "Generate Executive Summary"
+    ):
 
         risks_text = "\n".join([
-            f"- {r['name']} (Impact {r['impact']}, Probability {r['prob']})"
-            for r in st.session_state.risks if r["name"]
+            f"- {r['name']} "
+            f"(Impact {r['impact']}, "
+            f"Probability {r['prob']})"
+            for r in st.session_state.risks
+            if r["name"]
         ])
 
         stakeholders_text = "\n".join([
-            f"- {s['group']} ({s['role']}) - Power {s['power']}, Impact {s['impact']}"
-            for s in st.session_state.stakeholders if s["group"]
+            f"- {s['group']} "
+            f"({s['role']}) "
+            f"- Power {s['power']}, "
+            f"Impact {s['impact']}"
+            for s in st.session_state.stakeholders
+            if s["group"]
         ])
 
         targets_text = ", ".join([
@@ -629,8 +720,8 @@ Strategic Levers:
 
 Instructions:
 - concise and structured
-- no fluff
 - business tone
+- no fluff
 - max 4 short paragraphs
 """
 
@@ -643,11 +734,14 @@ Instructions:
             temperature=0.5
         )
 
-        st.write(res.choices[0].message.content)
+        st.write(
+            res.choices[0].message.content
+        )
 
     col1, col2 = st.columns([1,3])
 
     with col1:
         if st.button("⬅️ Back"):
+
             st.session_state.step = 8
             st.rerun()
