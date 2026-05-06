@@ -5,28 +5,36 @@ import altair as alt
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-st.set_page_config(page_title="Category Strategy Builder", layout="wide")
+st.set_page_config(
+    page_title="Category Strategy Builder",
+    layout="wide"
+)
 
-# ---------------- INIT ----------------
-def init(key, val):
+# =========================================================
+# INIT
+# =========================================================
+def init(key, value):
     if key not in st.session_state:
-        st.session_state[key] = val
+        st.session_state[key] = value
 
 init("step", 1)
-init("category_name","")
-init("category_desc","")
-init("category_type","Product")
-init("category_level","")
-init("market","")
-init("countries","")
 
-init("strength","")
-init("weakness","")
-init("opportunities_box","")
-init("threats_box","")
+init("category_name", "")
+init("category_desc", "")
+init("category_type", "Product")
+init("category_level", "L1")
 
-init("targets",{})
-init("levers","")
+init("countries", "")
+init("market", "")
+
+init("strength", "")
+init("weakness", "")
+
+init("opportunities_box", "")
+init("threats_box", "")
+
+init("targets", {})
+init("levers", "")
 
 if "risks" not in st.session_state:
     st.session_state.risks = [{
@@ -40,10 +48,12 @@ if "stakeholders" not in st.session_state:
         "group":"",
         "role":"",
         "power":3,
-        "impact":3
+        "interest":3
     }]
 
-# ---------------- SIDEBAR ----------------
+# =========================================================
+# SIDEBAR
+# =========================================================
 steps = [
     "Category",
     "Market",
@@ -69,24 +79,34 @@ for i, s in enumerate(steps, start=1):
     else:
         st.sidebar.markdown(f"⬜ {s}")
 
-# ---------------- NAV ----------------
+# =========================================================
+# NAVIGATION
+# =========================================================
 def nav(next_step):
 
     col1, col2 = st.columns([1,3])
 
     with col1:
+
         if st.session_state.step > 1:
+
             if st.button("⬅️ Back"):
+
                 st.session_state.step -= 1
                 st.rerun()
 
     with col2:
+
         if st.button("Continue ➡️"):
+
             st.session_state.step = next_step
             st.rerun()
 
-# ---------------- HEADER ----------------
+# =========================================================
+# HEADER
+# =========================================================
 st.title("🧠 Category Strategy Builder")
+
 st.subheader(
     f"Step {st.session_state.step}: "
     f"{steps[st.session_state.step-1]}"
@@ -108,12 +128,14 @@ if st.session_state.step == 1:
     col1, col2 = st.columns(2)
 
     with col1:
+
         st.session_state.category_type = st.selectbox(
             "Category Type",
             ["Product","Service","Commodity","Project"]
         )
 
     with col2:
+
         st.session_state.category_level = st.selectbox(
             "Category Level (L1–L4)",
             ["L1","L2","L3","L4"]
@@ -146,8 +168,8 @@ Supplier Countries:
 
 Rules:
 - concise
-- bullet points only
 - business tone
+- bullet points only
 """
 
         res = client.chat.completions.create(
@@ -178,11 +200,13 @@ elif st.session_state.step == 3:
     col3, col4 = st.columns(2)
 
     with col1:
+
         st.session_state.strength = st.text_area(
             "Strengths"
         )
 
     with col2:
+
         st.session_state.weakness = st.text_area(
             "Weaknesses"
         )
@@ -224,9 +248,10 @@ Rules:
                 res.choices[0].message.content
             )
 
-        st.text_area(
+        st.session_state.opportunities_box = st.text_area(
             "Opportunities",
-            key="opportunities_box"
+            value=st.session_state.opportunities_box,
+            key="opp_box"
         )
 
     with col4:
@@ -266,9 +291,10 @@ Rules:
                 res.choices[0].message.content
             )
 
-        st.text_area(
+        st.session_state.threats_box = st.text_area(
             "Threats",
-            key="threats_box"
+            value=st.session_state.threats_box,
+            key="threat_box"
         )
 
     nav(4)
@@ -295,6 +321,7 @@ elif st.session_state.step == 4:
         col1, col2, col3, col4 = st.columns([3,1,1,1])
 
         with col1:
+
             r["name"] = st.text_input(
                 f"Risk {i+1}",
                 value=r["name"],
@@ -302,6 +329,7 @@ elif st.session_state.step == 4:
             )
 
         with col2:
+
             r["impact"] = st.slider(
                 f"Impact {i+1}",
                 1,5,r["impact"],
@@ -309,6 +337,7 @@ elif st.session_state.step == 4:
             )
 
         with col3:
+
             r["prob"] = st.slider(
                 f"Probability {i+1}",
                 1,5,r["prob"],
@@ -318,6 +347,7 @@ elif st.session_state.step == 4:
         if i > 0:
 
             with col4:
+
                 if st.button("❌", key=f"del_r{i}"):
 
                     st.session_state.risks.pop(i)
@@ -338,7 +368,7 @@ elif st.session_state.step == 5:
             "group":"",
             "role":"",
             "power":3,
-            "impact":3
+            "interest":3
         })
 
         st.rerun()
@@ -350,6 +380,7 @@ elif st.session_state.step == 5:
         )
 
         with col1:
+
             s["group"] = st.text_input(
                 f"Group {i+1}",
                 value=s["group"],
@@ -357,6 +388,7 @@ elif st.session_state.step == 5:
             )
 
         with col2:
+
             s["role"] = st.text_input(
                 f"Role {i+1}",
                 value=s["role"],
@@ -364,6 +396,7 @@ elif st.session_state.step == 5:
             )
 
         with col3:
+
             s["power"] = st.slider(
                 f"Power {i+1}",
                 1,5,s["power"],
@@ -371,15 +404,17 @@ elif st.session_state.step == 5:
             )
 
         with col4:
-            s["impact"] = st.slider(
-                f"Impact {i+1}",
-                1,5,s["impact"],
-                key=f"i{i}"
+
+            s["interest"] = st.slider(
+                f"Interest {i+1}",
+                1,5,s["interest"],
+                key=f"in{i}"
             )
 
         if i > 0:
 
             with col5:
+
                 if st.button("❌", key=f"del_s{i}"):
 
                     st.session_state.stakeholders.pop(i)
@@ -429,34 +464,38 @@ elif st.session_state.step == 7:
 
     st.write(st.session_state.category_desc)
 
-    # -------- MARKET --------
+    # ---------------- MARKET ----------------
     st.subheader("Market")
 
     st.write(st.session_state.market)
 
-    # -------- SWOT --------
+    # ---------------- SWOT ----------------
     st.subheader("SWOT")
 
     col1, col2 = st.columns(2)
     col3, col4 = st.columns(2)
 
     with col1:
+
         st.markdown("### Strengths")
         st.write(st.session_state.strength)
 
     with col2:
+
         st.markdown("### Weaknesses")
         st.write(st.session_state.weakness)
 
     with col3:
+
         st.markdown("### Opportunities")
         st.write(st.session_state.opportunities_box)
 
     with col4:
+
         st.markdown("### Threats")
         st.write(st.session_state.threats_box)
 
-    # -------- RISK MAP --------
+    # ---------------- RISK MAP ----------------
     st.subheader("Risk Map")
 
     df = pd.DataFrame(st.session_state.risks)
@@ -466,6 +505,7 @@ elif st.session_state.step == 7:
         chart = alt.Chart(df).mark_circle(
             size=120
         ).encode(
+
             x=alt.X(
                 "prob",
                 scale=alt.Scale(domain=[0,5]),
@@ -474,6 +514,7 @@ elif st.session_state.step == 7:
                     title="Probability"
                 )
             ),
+
             y=alt.Y(
                 "impact",
                 scale=alt.Scale(domain=[0,5]),
@@ -482,7 +523,12 @@ elif st.session_state.step == 7:
                     title="Impact"
                 )
             ),
-            tooltip=["name","impact","prob"]
+
+            tooltip=[
+                "name",
+                "impact",
+                "prob"
+            ]
         )
 
         text = alt.Chart(df).mark_text(
@@ -499,7 +545,7 @@ elif st.session_state.step == 7:
             use_container_width=True
         )
 
-    # -------- STAKEHOLDER MAP --------
+    # ---------------- STAKEHOLDER MAP ----------------
     st.subheader("Stakeholder Map")
 
     df2 = pd.DataFrame(st.session_state.stakeholders)
@@ -509,6 +555,7 @@ elif st.session_state.step == 7:
         chart2 = alt.Chart(df2).mark_circle(
             size=120
         ).encode(
+
             x=alt.X(
                 "power",
                 scale=alt.Scale(domain=[0,5]),
@@ -517,15 +564,21 @@ elif st.session_state.step == 7:
                     title="Power"
                 )
             ),
+
             y=alt.Y(
-                "impact",
+                "interest",
                 scale=alt.Scale(domain=[0,5]),
                 axis=alt.Axis(
                     values=[0,1,2,3,4,5],
-                    title="Impact"
+                    title="Interest"
                 )
             ),
-            tooltip=["group","power","impact"]
+
+            tooltip=[
+                "group",
+                "power",
+                "interest"
+            ]
         )
 
         text2 = alt.Chart(df2).mark_text(
@@ -533,7 +586,7 @@ elif st.session_state.step == 7:
             color="white"
         ).encode(
             x="power",
-            y="impact",
+            y="interest",
             text="group"
         )
 
@@ -542,7 +595,7 @@ elif st.session_state.step == 7:
             use_container_width=True
         )
 
-    # -------- TARGETS --------
+    # ---------------- TARGETS ----------------
     st.subheader(
         "Value Contribution Priorities"
     )
@@ -596,7 +649,7 @@ elif st.session_state.step == 8:
             f"- {s['group']} "
             f"({s['role']}) "
             f"- Power {s['power']}, "
-            f"Impact {s['impact']}"
+            f"Interest {s['interest']}"
             for s in st.session_state.stakeholders
             if s["group"]
         ])
@@ -678,7 +731,7 @@ elif st.session_state.step == 9:
             f"- {s['group']} "
             f"({s['role']}) "
             f"- Power {s['power']}, "
-            f"Impact {s['impact']}"
+            f"Interest {s['interest']}"
             for s in st.session_state.stakeholders
             if s["group"]
         ])
@@ -741,6 +794,7 @@ Instructions:
     col1, col2 = st.columns([1,3])
 
     with col1:
+
         if st.button("⬅️ Back"):
 
             st.session_state.step = 8
