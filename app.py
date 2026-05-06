@@ -199,18 +199,25 @@ elif st.session_state.step == 3:
     col1, col2 = st.columns(2)
     col3, col4 = st.columns(2)
 
+    # ---------------- STRENGTH ----------------
     with col1:
 
         st.session_state.strength = st.text_area(
-            "Strengths"
+            "Strengths",
+            value=st.session_state.strength,
+            key="strength_box"
         )
 
+    # ---------------- WEAKNESS ----------------
     with col2:
 
         st.session_state.weakness = st.text_area(
-            "Weaknesses"
+            "Weaknesses",
+            value=st.session_state.weakness,
+            key="weakness_box"
         )
 
+    # ---------------- OPPORTUNITIES ----------------
     with col3:
 
         st.markdown("### Opportunities")
@@ -248,12 +255,15 @@ Rules:
                 res.choices[0].message.content
             )
 
-        st.session_state.opportunities_box = st.text_area(
+        opp_value = st.text_area(
             "Opportunities",
             value=st.session_state.opportunities_box,
-            key="opp_box"
+            key="opp_text"
         )
 
+        st.session_state.opportunities_box = opp_value
+
+    # ---------------- THREATS ----------------
     with col4:
 
         st.markdown("### Threats")
@@ -291,14 +301,16 @@ Rules:
                 res.choices[0].message.content
             )
 
-        st.session_state.threats_box = st.text_area(
+        threat_value = st.text_area(
             "Threats",
             value=st.session_state.threats_box,
-            key="threat_box"
+            key="threat_text"
         )
 
-    nav(4)
+        st.session_state.threats_box = threat_value
 
+    nav(4)
+    
 # =========================================================
 # STEP 4 — RISK
 # =========================================================
